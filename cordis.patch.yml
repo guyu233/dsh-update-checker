@@ -1,0 +1,6 @@
+# One Host row: serves the upstream update check over its typert endpoint and owns the
+# launch/daily schedule. The Client half registers the General-settings row right below
+# the built-in "Update channel" row.
+- insert:
+    - id: dsh-update-checker
+      name: dsh-update-checker

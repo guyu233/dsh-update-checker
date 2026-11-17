@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Upstream update check",
+    "description": "While Settings → General uses the development channel, adds Check for updates directly under Update channel. It reads the newest Windows installer from the upstream feed and ignores staged rollout, checks on every launch or once a day, and downloads only after you confirm. The installer is hash-checked and signature-checked, then waits for you to quit DeepSeek Harness from the tray icon; closing the window does not unlock the install. The agent can check for a newer build, but it cannot start the download or the installer."
+  }
+}
