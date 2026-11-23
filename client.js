@@ -11,7 +11,10 @@ window.__ModuleLoader__.load({
     const { useEffect, useRef, useState, useSyncExternalStore } = React
 
     const PACKAGE = 'dsh-update-checker'
-    const ENDPOINTS = ['status', 'check', 'setCadence', 'dismiss', 'later', 'ask', 'update']
+    const ENDPOINTS = [
+      'status', 'check', 'setCadence', 'dismiss', 'later', 'ask', 'update',
+      'alphaStatus', 'alphaCheck', 'alphaConfig', 'alphaStart', 'alphaAsk', 'alphaLater', 'alphaDismiss', 'alphaConsume',
+    ]
 
     function describe(error) {
       return error instanceof Error ? error.message : String(error)
@@ -115,6 +118,50 @@ window.__ModuleLoader__.load({
       errorBusy: 'That update is no longer current. Check again.',
       errorConfig: 'The setting could not be saved.',
       errorGeneric: 'The update check failed.',
+      alphaTitle: 'Alpha build monitoring',
+      alphaDescription: 'Reads the upstream GitHub tags, clones the newest alpha source into the configured directory, then opens a new session with a build prompt. The session configures the toolchain, packages the installer, and signs it; this plugin only prepares the source.',
+      alphaEnable: 'Enable alpha monitoring',
+      alphaChecking: 'Reading upstream tags…',
+      alphaCurrent: 'The installed build already matches the newest alpha tag.',
+      alphaAvailable: 'Upstream alpha {version} is newer.',
+      alphaCloning: 'Preparing the source ({step})…',
+      alphaStepClone: 'cloning',
+      alphaStepFetch: 'fetching tags',
+      alphaStepCheckout: 'checking out the tag',
+      alphaStepSubmodules: 'updating submodules',
+      alphaReady: 'Source ready. Opening a session with the build prompt…',
+      alphaHanded: 'The build prompt was placed in a new session. Follow the build there, then install the installer it reports.',
+      alphaDisabled: 'Alpha monitoring is off.',
+      alphaPath: 'Source directory',
+      alphaPathPlaceholder: 'Absolute path for the deepseek-harness checkout',
+      alphaChoose: 'Choose folder',
+      alphaKeepSource: 'Keep the source after install (later updates fetch with git)',
+      alphaDeleteHint: 'Without it, the checkout is cleaned with git and removed once the installed version matches.',
+      alphaCheck: 'Check alpha tags',
+      alphaUpdate: 'Build alpha {version}',
+      alphaAdvanced: 'Toolchain and signing settings',
+      alphaAdvancedHide: 'Hide toolchain and signing settings',
+      alphaNodePath: 'Node executable',
+      alphaRegistry: 'npm registry',
+      alphaCertificate: 'Certificate file',
+      alphaSignTool: 'signtool',
+      alphaKeyContainer: 'Key container',
+      alphaSignatureCacheDir: 'Signature cache',
+      alphaDeleteInstaller: 'Delete the downloaded installer after install',
+      alphaCheckedAt: 'Last checked {at}',
+      alphaLatest: 'Upstream tag {tag}',
+      alphaConfirmTitle: 'Build alpha {version}?',
+      alphaConfirmBody: 'Installed: {current}. The plugin clones {tag} into {path}, registers it as a workspace, and opens a new session with the build prompt. The session follows the repository\'s own instructions to set up the toolchain, package and sign the installer. You install it manually afterwards.',
+      alphaStart: 'Clone and open session',
+      alphaNoPath: 'Set the source directory first.',
+      alphaSessionError: 'Could not open the build session automatically. Open the workspace manually and paste the prompt.',
+      alphaGit: 'git is not available on PATH.',
+      alphaPathError: 'The source directory is not usable. Choose an empty folder or the existing deepseek-harness checkout.',
+      alphaClone: 'Cloning the upstream repository failed.',
+      alphaSync: 'Updating the source checkout failed.',
+      alphaCleanup: 'Removing the source checkout failed.',
+      alphaError: 'The alpha check failed.',
+      alphaSkipped: 'Version {version} was skipped. You can still build it.',
     }
     const ZH = {
       title: '检查更新',
@@ -154,6 +201,50 @@ window.__ModuleLoader__.load({
       errorBusy: '这个更新已经变化，请重新检查。',
       errorConfig: '没能保存这个设置。',
       errorGeneric: '检查更新失败。',
+      alphaTitle: 'Alpha 版本监测',
+      alphaDescription: '读取上游 GitHub 标签，把最新的 alpha 源码克隆到指定目录，然后新建会话并填入构建提示词。工具链、打包和签名由该会话按仓库说明完成；插件只准备源码。',
+      alphaEnable: '开启 Alpha 监测',
+      alphaChecking: '正在读取上游标签…',
+      alphaCurrent: '当前安装的版本已经是最新 alpha 标签。',
+      alphaAvailable: '上游 alpha {version} 更新。',
+      alphaCloning: '正在准备源码（{step}）…',
+      alphaStepClone: '克隆',
+      alphaStepFetch: '拉取标签',
+      alphaStepCheckout: '检出标签',
+      alphaStepSubmodules: '更新子模块',
+      alphaReady: '源码已就绪，正在新建会话并填入构建提示词…',
+      alphaHanded: '构建提示词已填入新会话。请在该会话里完成构建，然后安装它给出的安装包。',
+      alphaDisabled: 'Alpha 监测未开启。',
+      alphaPath: '源码目录',
+      alphaPathPlaceholder: 'deepseek-harness 检出的绝对路径',
+      alphaChoose: '选择文件夹',
+      alphaKeepSource: '安装后保留源码（后续更新直接用 git 拉取）',
+      alphaDeleteHint: '不保留时，安装版本与源码一致后会用 git 清理并删除该源码目录。',
+      alphaCheck: '检查 alpha 标签',
+      alphaUpdate: '构建 alpha {version}',
+      alphaAdvanced: '工具链与签名设置',
+      alphaAdvancedHide: '收起工具链与签名设置',
+      alphaNodePath: 'Node 可执行文件',
+      alphaRegistry: 'npm registry',
+      alphaCertificate: '证书文件',
+      alphaSignTool: 'signtool',
+      alphaKeyContainer: '证书容器',
+      alphaSignatureCacheDir: '签名缓存目录',
+      alphaDeleteInstaller: '安装完成后删除已下载的安装包',
+      alphaCheckedAt: '上次检查 {at}',
+      alphaLatest: '上游标签 {tag}',
+      alphaConfirmTitle: '构建 alpha {version}？',
+      alphaConfirmBody: '当前安装的是 {current}。插件会把 {tag} 克隆到 {path}，登记为工作区，并新建会话填入构建提示词。工具链配置、打包和签名由该会话按仓库说明完成，安装包需要你之后手动安装。',
+      alphaStart: '克隆并新建会话',
+      alphaNoPath: '请先设置源码目录。',
+      alphaSessionError: '无法自动打开构建会话，请手动打开工作区并粘贴提示词。',
+      alphaGit: 'PATH 里找不到 git。',
+      alphaPathError: '源码目录不可用。请选择空文件夹或已有的 deepseek-harness 检出。',
+      alphaClone: '克隆上游仓库失败。',
+      alphaSync: '更新源码失败。',
+      alphaCleanup: '清理源码目录失败。',
+      alphaError: 'alpha 检查失败。',
+      alphaSkipped: '已跳过 {version}，仍可以构建。',
     }
     const JA = {
       title: '更新を確認',
@@ -409,11 +500,23 @@ window.__ModuleLoader__.load({
 .duc-card-title{margin:0;font-size:14px;font-weight:600;line-height:22px;}
 .duc-card-body{margin:0;font-size:13px;line-height:20px;color:var(--dsw-alias-label-secondary);}
 .duc-card-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;}
-@media (max-width:767px){.duc-row{align-items:flex-start;flex-wrap:wrap;}.duc-text{padding-right:0;}.duc-controls{width:100%;justify-content:flex-start;}}
+.duc-alpha{display:flex;flex-direction:column;gap:10px;padding:16px 0;border-bottom:.5px solid var(--dsw-alias-border-l2);}
+.duc-alpha-head{display:flex;align-items:flex-start;gap:8px;}
+.duc-alpha-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-right:24px;}
+.duc-field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.duc-label{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary);flex:none;min-width:88px;}
+.duc-input{flex:1;min-width:120px;height:32px;padding:0 10px;border:none;border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-module-platform);color:var(--dsw-alias-label-primary);font:inherit;font-size:13px;line-height:20px;}
+.duc-input::placeholder{color:var(--dsw-alias-label-tertiary);}
+.duc-input:focus-visible{outline:var(--dsw-focus-ring-width,2px) solid var(--dsw-focus-ring-color,var(--dsw-alias-brand-primary));outline-offset:1px;}
+.duc-check{display:flex;align-items:center;gap:6px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary);cursor:pointer;}
+.duc-check input{accent-color:var(--dsw-alias-brand-primary);}
+.duc-link{align-self:flex-start;padding:0;border:none;background:none;color:var(--dsw-alias-brand-primary);font:inherit;font-size:12px;line-height:18px;cursor:pointer;}
+.duc-advanced{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-module-platform);}
+@media (max-width:767px){.duc-row,.duc-alpha-head{align-items:flex-start;flex-wrap:wrap;}.duc-text,.duc-alpha-text{padding-right:0;}.duc-controls{width:100%;justify-content:flex-start;}.duc-label{min-width:0;}}
 `
 
     return {
-      inject: ['slots', 'locale', 'remote'],
+      inject: ['slots', 'locale', 'remote', 'uiWorkspace'],
       apply(ctx) {
         const disposeLocale = ctx.locale.register(PACKAGE, {
           zh: ZH, en: EN, ja: JA, de: DE, es: ES, fr: FR, pt: PT, ru: RU,
@@ -646,6 +749,249 @@ window.__ModuleLoader__.load({
               }, t('update')) : null))
         }
 
+        function alphaFacts(alpha) {
+          return {
+            version: alpha?.latest?.version ?? '',
+            tag: alpha?.latest?.tag ?? alpha?.latest?.version ?? '',
+            current: alpha?.currentVersion ?? '',
+            path: alpha?.path ?? '',
+            at: formatWhen(alpha?.checkedAt),
+          }
+        }
+
+        function alphaErrorText(error) {
+          const key = {
+            remote: 'errorRemote', git: 'alphaGit', path: 'alphaPathError', clone: 'alphaClone',
+            sync: 'alphaSync', cleanup: 'alphaCleanup', alpha: 'alphaError', busy: 'errorBusy',
+            config: 'errorConfig',
+          }[error?.code] ?? 'errorGeneric'
+          return t(key)
+        }
+
+        function alphaStatus(alpha) {
+          if (!alpha) return null
+          switch (alpha.phase) {
+            case 'checking': return { text: t('alphaChecking'), tone: 'duc-status' }
+            case 'cloning': {
+              const step = {
+                clone: 'alphaStepClone', fetch: 'alphaStepFetch', checkout: 'alphaStepCheckout', submodules: 'alphaStepSubmodules',
+              }[alpha.progress?.step]
+              return { text: t('alphaCloning', { step: step ? t(step) : '…' }), tone: 'duc-status' }
+            }
+            case 'ready': return { text: t('alphaReady'), tone: 'duc-warn' }
+            case 'handed': return { text: t('alphaHanded'), tone: 'duc-warn' }
+            case 'current': return { text: t('alphaCurrent'), tone: 'duc-ok' }
+            case 'available': {
+              const facts = alphaFacts(alpha)
+              const skipped = alpha.dismissedVersion === alpha.latest?.version
+              return { text: skipped ? `${t('alphaAvailable', facts)} ${t('alphaSkipped', facts)}` : t('alphaAvailable', facts), tone: 'duc-status' }
+            }
+            case 'error': return { text: alpha.error ? alphaErrorText(alpha.error) : t('alphaError'), tone: 'duc-error' }
+            default: return alpha.enabled === true ? null : { text: t('alphaDisabled'), tone: 'duc-meta' }
+          }
+        }
+
+        function AlphaRow() {
+          const snap = useSyncExternalStore(store.subscribe, store.get)
+          const alpha = snap.alpha
+          const [pathDraft, setPathDraft] = useState('')
+          const [advancedOpen, setAdvancedOpen] = useState(false)
+          const [draft, setDraft] = useState({})
+          const advancedFields = [
+            ['nodePath', 'alphaNodePath'],
+            ['registry', 'alphaRegistry'],
+            ['certificateFile', 'alphaCertificate'],
+            ['signTool', 'alphaSignTool'],
+            ['keyContainer', 'alphaKeyContainer'],
+            ['signatureCacheDir', 'alphaSignatureCacheDir'],
+          ]
+          const advancedSignature = advancedFields.map(([key]) => String(alpha?.advanced?.[key] ?? '')).join('\u0000')
+          useEffect(() => {
+            if (alpha?.path !== undefined) setPathDraft(alpha.path)
+          }, [alpha?.path])
+          useEffect(() => {
+            if (alpha?.advanced !== undefined) setDraft({ ...alpha.advanced })
+          }, [advancedSignature])
+          if (!alpha || alpha.applicable !== true) return null
+          const busy = alpha.phase === 'checking' || alpha.phase === 'cloning'
+          const newer = alpha.enabled === true && alpha.phase === 'available'
+          const state = alphaStatus(alpha)
+          const save = (patch) => {
+            void endpoint('alphaConfig', patch).then((next) => {
+              if (next && typeof next === 'object') store.set(next)
+            }).catch((error) => {
+              const current = store.get()
+              store.set({ ...current, alpha: { ...(current.alpha ?? {}), error: { code: 'remote', detail: describe(error) } } })
+            })
+          }
+          const commitPath = () => {
+            const value = pathDraft.trim()
+            if (value === (alpha.path ?? '')) return
+            save({ path: value })
+          }
+          const choose = () => {
+            const ui = ctx.get('uiWorkspace')
+            if (!ui || typeof ui.pickDirectory !== 'function') return
+            void ui.pickDirectory().then((directory) => {
+              if (typeof directory !== 'string' || directory === '') return
+              setPathDraft(directory)
+              if (directory !== (alpha.path ?? '')) save({ path: directory })
+            }).catch(() => {})
+          }
+          const commitAdvanced = (key) => {
+            const value = String(draft[key] ?? '').trim()
+            if (value === (alpha.advanced?.[key] ?? '')) return
+            save({ [key]: value })
+          }
+          const meta = [
+            alpha.checkedAt ? t('alphaCheckedAt', { at: formatWhen(alpha.checkedAt) }) : '',
+            alpha.latest?.tag ? t('alphaLatest', { tag: alpha.latest.tag }) : '',
+          ].filter(Boolean).join(' · ')
+          return h('div', { className: 'duc-alpha', role: 'group', 'aria-label': t('alphaTitle') },
+            h('style', null, CSS),
+            h('div', { className: 'duc-alpha-head' },
+              h('div', { className: 'duc-alpha-text' },
+                h('div', { className: 'duc-title' }, t('alphaTitle')),
+                h('div', { className: 'duc-description' }, t('alphaDescription')),
+                state ? h('div', { className: state.tone, role: 'status', 'aria-live': 'polite' }, state.text) : null,
+                meta ? h('div', { className: 'duc-meta' }, meta) : null),
+              h('div', { className: 'duc-controls' },
+                h('label', { className: 'duc-check' },
+                  h('input', {
+                    type: 'checkbox',
+                    checked: alpha.enabled === true,
+                    disabled: alpha.phase === 'cloning',
+                    onChange: (event) => save({ enabled: event.target.checked }),
+                  }),
+                  t('alphaEnable')),
+                h('button', {
+                  type: 'button', className: 'duc-button', disabled: busy,
+                  onClick: () => {
+                    void endpoint('alphaCheck', { manual: true }).then((next) => {
+                      if (next && typeof next === 'object') store.set(next)
+                    }).catch((error) => {
+                      const current = store.get()
+                      store.set({ ...current, alpha: { ...(current.alpha ?? {}), phase: 'error', error: { code: 'remote', detail: describe(error) } } })
+                    })
+                  },
+                }, alpha.phase === 'checking' ? t('alphaChecking') : t('alphaCheck')),
+                newer && alpha.latest?.version ? h('button', {
+                  type: 'button', className: 'duc-button duc-button-primary', disabled: busy,
+                  onClick: () => {
+                    void endpoint('alphaAsk', {}).then((next) => {
+                      if (next && typeof next === 'object') store.set(next)
+                    }).catch(() => {})
+                  },
+                }, t('alphaUpdate', { version: alpha.latest.version })) : null)),
+            h('div', { className: 'duc-field' },
+              h('span', { className: 'duc-label' }, t('alphaPath')),
+              h('input', {
+                type: 'text', className: 'duc-input', value: pathDraft,
+                placeholder: t('alphaPathPlaceholder'),
+                spellCheck: false,
+                onChange: (event) => setPathDraft(event.target.value),
+                onBlur: commitPath,
+                onKeyDown: (event) => {
+                  if (event.key === 'Enter') event.currentTarget.blur()
+                },
+              }),
+              h('button', { type: 'button', className: 'duc-button', onClick: choose }, t('alphaChoose'))),
+            h('label', { className: 'duc-check' },
+              h('input', {
+                type: 'checkbox',
+                checked: alpha.keepSource === true,
+                onChange: (event) => save({ keepSource: event.target.checked }),
+              }),
+              t('alphaKeepSource')),
+            alpha.keepSource !== true && alpha.path !== '' ? h('div', { className: 'duc-meta' }, t('alphaDeleteHint')) : null,
+            alpha.enabled === true && alpha.path === '' ? h('div', { className: 'duc-warn' }, t('alphaNoPath')) : null,
+            h('button', {
+              type: 'button', className: 'duc-link',
+              onClick: () => setAdvancedOpen((open) => !open),
+            }, t(advancedOpen ? 'alphaAdvancedHide' : 'alphaAdvanced')),
+            advancedOpen ? h('div', { className: 'duc-advanced' },
+              advancedFields.map(([key, labelKey]) => h('div', { className: 'duc-field', key },
+                h('span', { className: 'duc-label' }, t(labelKey)),
+                h('input', {
+                  type: 'text', className: 'duc-input', value: draft[key] ?? '',
+                  spellCheck: false,
+                  onChange: (event) => setDraft((current) => ({ ...current, [key]: event.target.value })),
+                  onBlur: () => commitAdvanced(key),
+                  onKeyDown: (event) => {
+                    if (event.key === 'Enter') event.currentTarget.blur()
+                  },
+                }))),
+              h('label', { className: 'duc-check' },
+                h('input', {
+                  type: 'checkbox',
+                  checked: alpha.advanced?.deleteInstaller === true,
+                  onChange: (event) => save({ deleteInstaller: event.target.checked }),
+                }),
+                t('alphaDeleteInstaller'))
+            ) : null)
+        }
+
+        function AlphaPrompt() {
+          const snap = useSyncExternalStore(store.subscribe, store.get)
+          const alpha = snap.alpha
+          const primary = useRef(null)
+          const confirming = alpha?.applicable === true && alpha.enabled === true
+            && alpha.prompt === true && alpha.phase === 'available' && typeof alpha.latest?.version === 'string'
+          const actionable = confirming && alpha.path !== ''
+          useEffect(() => {
+            if (!confirming) return undefined
+            primary.current?.focus()
+            const onKey = (event) => {
+              if (event.key !== 'Escape') return
+              event.preventDefault()
+              void endpoint('alphaLater', {}).then((next) => {
+                if (next && typeof next === 'object') store.set(next)
+              }).catch(() => {})
+            }
+            window.addEventListener('keydown', onKey)
+            return () => window.removeEventListener('keydown', onKey)
+          }, [confirming])
+          if (!confirming) return null
+          const facts = alphaFacts(alpha)
+          return h('div', { className: 'duc-card', role: 'dialog', 'aria-modal': 'false', 'aria-labelledby': 'duc-alpha-title' },
+            h('style', null, CSS),
+            h('h2', { className: 'duc-card-title', id: 'duc-alpha-title' }, t('alphaConfirmTitle', facts)),
+            h('p', { className: 'duc-card-body' }, t('alphaConfirmBody', facts)),
+            alpha.error ? h('p', { className: 'duc-error', role: 'alert' }, alphaErrorText(alpha.error)) : null,
+            h('div', { className: 'duc-card-actions' },
+              h('button', {
+                type: 'button', className: 'duc-button',
+                onClick: () => {
+                  void endpoint('alphaLater', {}).then((next) => {
+                    if (next && typeof next === 'object') store.set(next)
+                  }).catch(() => {})
+                },
+              }, t('later')),
+              h('button', {
+                type: 'button', className: 'duc-button',
+                onClick: () => {
+                  void endpoint('alphaDismiss', { version: alpha.latest.version }).then((next) => {
+                    if (next && typeof next === 'object') store.set(next)
+                  }).catch(() => {})
+                },
+              }, t('skip')),
+              h('button', {
+                type: 'button', className: 'duc-button duc-button-primary', ref: primary, disabled: !actionable,
+                onClick: () => {
+                  if (!actionable) return
+                  void endpoint('alphaLater', {}).then((next) => {
+                    if (next && typeof next === 'object') store.set(next)
+                  }).catch(() => {})
+                  void endpoint('alphaStart', { version: alpha.latest.version }).then((next) => {
+                    if (next && typeof next === 'object') store.set(next)
+                  }).catch((error) => {
+                    const current = store.get()
+                    store.set({ ...current, alpha: { ...(current.alpha ?? {}), phase: 'error', error: { code: 'remote', detail: describe(error) } } })
+                  })
+                },
+              }, t('alphaStart'))))
+        }
+
         ctx.effect(() => disposeLocale, 'dsh-update-checker: locale')
         ctx.effect(() => {
           let stopped = false
@@ -664,6 +1010,74 @@ window.__ModuleLoader__.load({
             clearTimeout(timer)
           }
         }, 'dsh-update-checker: poll upstream status')
+
+        let handoffToken = null
+        let handoffBusy = false
+        let handoffTimer = null
+        let handoffDisposed = false
+        function openBuildSession() {
+          if (handoffDisposed) return
+          const snap = store.get()
+          const alpha = snap.alpha
+          if (!alpha || alpha.phase !== 'ready') return
+          if (typeof alpha.workspaceId !== 'string' || typeof alpha.promptText !== 'string' || handoffBusy) return
+          const token = `${alpha.handoff?.version ?? ''}#${alpha.handoff?.at ?? ''}`
+          if (handoffToken === token) return
+          const workspace = ctx.get('uiWorkspace')
+          if (!workspace || typeof workspace.startSession !== 'function') {
+            handoffToken = token
+            console.warn('dsh-update-checker: uiWorkspace.startSession is unavailable')
+            return
+          }
+          handoffBusy = true
+          const options = { prompt: alpha.promptText, whenDraftExists: 'replace' }
+          const start = () => {
+            try {
+              workspace.startSession(alpha.workspaceId, options)
+            } catch (error) {
+              handoffBusy = false
+              handoffToken = token
+              console.warn('dsh-update-checker: could not start the build session:', describe(error))
+              return
+            }
+            handoffToken = token
+            handoffTimer = setTimeout(() => {
+              void endpoint('alphaConsume', { version: alpha.handoff?.version }).then((next) => {
+                if (next && typeof next === 'object') store.set(next)
+              }).catch(() => {}).finally(() => {
+                handoffBusy = false
+              })
+            }, 1500)
+          }
+          const attempt = (remaining) => {
+            if (handoffDisposed) return
+            if (typeof workspace.connectWorkspace !== 'function') {
+              start()
+              return
+            }
+            Promise.resolve(workspace.connectWorkspace(alpha.workspaceId))
+              .then(() => start())
+              .catch((error) => {
+                if (remaining > 0) {
+                  handoffTimer = setTimeout(() => attempt(remaining - 1), 900)
+                  return
+                }
+                handoffBusy = false
+                handoffToken = token
+                console.warn('dsh-update-checker: could not reach the new workspace:', describe(error))
+              })
+          }
+          attempt(4)
+        }
+        ctx.effect(() => {
+          const unsubscribe = store.subscribe(openBuildSession)
+          return () => {
+            handoffDisposed = true
+            if (handoffTimer !== null) clearTimeout(handoffTimer)
+            unsubscribe()
+          }
+        }, 'dsh-update-checker: alpha handoff')
+
         ctx.effect(() => {
           const stops = [
             ctx.slots.inject('settings.general.item', () => ctx.slots.register({
@@ -671,11 +1085,21 @@ window.__ModuleLoader__.load({
               id: 'upstream-update',
               order: 96,
             }, UpdateRow)),
+            ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+              name: 'settings.general.item',
+              id: 'alpha-update',
+              order: 97,
+            }, AlphaRow)),
             ctx.slots.inject('shell.overlay', () => ctx.slots.register({
               name: 'shell.overlay',
               id: 'upstream-update-prompt',
               order: 48,
             }, UpdatePrompt)),
+            ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+              name: 'shell.overlay',
+              id: 'alpha-update-prompt',
+              order: 47,
+            }, AlphaPrompt)),
           ]
           return () => {
             for (const stop of stops) stop?.()

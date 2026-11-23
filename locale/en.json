@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Upstream update check",
-    "description": "While Settings → General uses the development channel, adds Check for updates directly under Update channel. It reads the newest Windows installer from the upstream feed and ignores staged rollout, checks on every launch or once a day, and downloads only after you confirm. The installer is hash-checked and signature-checked, then waits for you to quit DeepSeek Harness from the tray icon; closing the window does not unlock the install. The agent can check for a newer build, but it cannot start the download or the installer."
+    "description": "While Settings → General uses the development channel, adds Check for updates directly under Update channel. It reads the newest Windows installer from the upstream feed and ignores staged rollout, checks on every launch or once a day, and downloads only after you confirm. The installer is hash-checked and signature-checked, then waits for you to quit DeepSeek Harness from the tray icon; closing the window does not unlock the install. Alpha monitoring can also watch the upstream alpha tags; after you confirm, it clones the tagged source into the configured directory, creates a workspace for it and fills a new session with the build prompt, leaving the toolchain, packaging and signing to DeepSeek Harness. The plugin never builds or installs anything itself."
   }
 }

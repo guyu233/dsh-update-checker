@@ -1,10 +1,10 @@
 {
   "name": "dsh-update-checker",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "description": "Adds a Check for updates row under the Desktop update channel: reads the newest installer straight from the upstream feed (ignoring staged rollout), checks once per launch or once a day, and downloads, verifies and installs only after the user confirms.",
+  "description": "Adds a Check for updates row under the Desktop update channel: reads the newest installer straight from the upstream feed (ignoring staged rollout), checks once per launch or once a day, and downloads, verifies and installs only after the user confirms. It also watches the upstream alpha tags, clones the tagged deepseek-harness source on demand and opens a build session for the repository's own toolchain.",
   "engines": {
-    "dsh": ">=0.2.1-rc.3 <0.3.0-0"
+    "dsh": "^0.2.3-alpha.2"
   },
   "license": "MIT",
   "icon": "./icon.svg",
@@ -13,6 +13,7 @@
     "./client": "./client.js",
     "./typert": "./lib/typert.host.js",
     "./cordis.patch.yml": "./cordis.patch.yml",
+    "./icon": "./icon.svg",
     "./icon.svg": "./icon.svg",
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json"
@@ -22,6 +23,7 @@
     "client.js",
     "lib/typert.host.js",
     "lib/feed.js",
+    "lib/alpha.js",
     "cordis.patch.yml",
     "locale/*.json",
     "icon.svg",
@@ -35,7 +37,7 @@
     "update"
   ],
   "dsh": {
-    "verifiedAgainst": "0.2.2-rc.3",
+    "manifestVersion": 1,
     "bundle": {
       "patch": "./cordis.patch.yml"
     },
@@ -45,7 +47,8 @@
       "inject": [
         "@deepseek-ai/dsh-client-ui-settings-general",
         "@deepseek-ai/dsh-api-remotes",
-        "@deepseek-ai/dsh-client-locale"
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-workspace"
       ]
     }
   }
